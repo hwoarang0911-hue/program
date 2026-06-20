@@ -317,7 +317,16 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); font
 .btn-save:active { transform: scale(.98); }
 .btn-save.saved { background: #4aab7c; }
 
-.save-row { display: flex; align-items: center; gap: 1rem; margin-top: .4rem; }
+.btn-reset-piece {
+  background: none; color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: var(--r);
+  padding: .55rem 1.1rem; font-family: var(--sans); font-size: .82rem;
+  font-weight: 500; cursor: pointer; letter-spacing: .06em;
+  transition: color .2s, border-color .2s;
+}
+.btn-reset-piece:hover { color: #c0392b; border-color: #c0392b; }
+
+.save-row { display: flex; align-items: center; gap: .7rem; margin-top: .4rem; }
 .save-msg { font-size: .78rem; color: #4aab7c; opacity: 0; transition: opacity .4s; }
 .save-msg.show { opacity: 1; }
 
