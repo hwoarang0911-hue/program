@@ -8,19 +8,27 @@
 </head>
 <body class="admin-body">
 
+  <!-- Login overlay -->
   <div class="login-overlay" id="login-overlay">
     <div class="login-box">
       <div class="login-logo">연음</div>
       <div class="login-sub">PERFORMER PAGE · 연주자 전용 페이지</div>
-      <input type="password" class="login-input" id="login-pw" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+      <input
+        type="password"
+        class="login-input"
+        id="login-pw"
+        placeholder="비밀번호를 입력하세요"
+        autocomplete="current-password"
+      >
       <button class="login-btn" id="login-btn">입장하기</button>
       <div class="login-err" id="login-err"></div>
     </div>
   </div>
 
+  <!-- Admin header -->
   <header class="admin-header">
     <div class="admin-header-inner">
-      <span class="admin-title-bar">YEUNEUM · 연주자 페이지</span>
+      <span class="admin-title-bar">YEONEUM · 연주자 페이지</span>
       <a href="index.html" class="admin-back">← 관람객 페이지로 돌아가기</a>
     </div>
   </header>
@@ -33,7 +41,13 @@
   </div>
 
   <main class="admin-main">
-    <div style="background:#fff;border:1px solid #e0ddd8;border-radius:6px;padding:1rem 1.4rem;margin-bottom:2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+
+    <!-- Guide -->
+    <div style="
+      background:#fff; border:1px solid #e0ddd8; border-radius:6px;
+      padding:1rem 1.4rem; margin-bottom:2rem;
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;
+    ">
       <div>
         <div style="font-size:.72rem;font-weight:700;letter-spacing:.12em;color:#1b5068;margin-bottom:.3rem;text-transform:uppercase">곡 소개</div>
         <div style="font-size:.82rem;color:#555;line-height:1.6">기본 텍스트가 제공됩니다. 필요 시 수정할 수 있습니다.</div>
@@ -48,20 +62,27 @@
       </div>
     </div>
 
+    <!-- Tabs -->
     <div class="admin-tab-bar">
       <button class="admin-tab-btn active" data-tab="admin-panel-1">Program 1</button>
       <button class="admin-tab-btn" data-tab="admin-panel-2">Program 2</button>
     </div>
 
+    <!-- Panel 1 -->
     <div class="admin-panel active" id="admin-panel-1"></div>
+
+    <!-- Panel 2 -->
     <div class="admin-panel" id="admin-panel-2"></div>
+
   </main>
 
+  <!-- Global save bar -->
   <div class="global-save-bar">
     <button class="btn-global" id="btn-reset">초기화</button>
     <button class="btn-global primary" id="btn-save-all">전체 저장</button>
   </div>
 
+  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script src="js/data.js"></script>
