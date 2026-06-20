@@ -176,32 +176,39 @@ const CONCERT = {
   ]
 };
 
-const STORAGE_KEY = "yeoneum_concert_data";
 const ADMIN_PW = "0627";
 
-function loadData() {
+async function loadData() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return JSON.parse(JSON.stringify(CONCERT));
-    const parsed = JSON.parse(saved);
-    // Merge saved data into base to preserve any new fields
+    const snap = await db.collection("concert").doc("main").get();
     const base = JSON.parse(JSON.stringify(CONCERT));
-    base.programs.forEach((prog, pi) => {
-      prog.pieces.forEach((piece, ci) => {
-        const saved_piece = parsed.programs?.[pi]?.pieces?.[ci];
-        if (saved_piece) {
-          piece.description = saved_piece.description ?? piece.description;
-          piece.performerName = saved_piece.performerName ?? "";
-          piece.performerComment = saved_piece.performerComment ?? "";
-        }
+    if (snap.exists) {
+      const saved = snap.data();
+      base.programs.forEach(prog => {
+        prog.pieces.forEach(piece => {
+          if (saved[piece.id]) {
+            piece.description      = saved[piece.id].description      ?? piece.description;
+            piece.performerComment = saved[piece.id].performerComment ?? "";
+          }
+        });
       });
-    });
+    }
     return base;
   } catch (e) {
+    console.error("Firestore load error:", e);
     return JSON.parse(JSON.stringify(CONCERT));
   }
 }
 
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+async function saveData(data) {
+  const payload = {};
+  data.programs.forEach(prog => {
+    prog.pieces.forEach(piece => {
+      payload[piece.id] = {
+        description:      piece.description      || "",
+        performerComment: piece.performerComment || ""
+      };
+    });
+  });
+  await db.collection("concert").doc("main").set(payload);
 }
