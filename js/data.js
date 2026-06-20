@@ -177,7 +177,7 @@ const CONCERT = {
 };
 
 const STORAGE_KEY = "yeondeul18_data";
-const ADMIN_PW = "yeondeul18";
+const ADMIN_PW = "0627";
 
 function loadData() {
   try {
