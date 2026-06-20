@@ -1,8 +1,7 @@
-(function () {
-  const data = loadData();
+(async function () {
+  const data = await loadData();
 
-  // Render hero meta
-  document.getElementById('hero-date').textContent = data.date + ' ' + data.time;
+  document.getElementById('hero-date').textContent  = data.date + ' ' + data.time;
   document.getElementById('hero-venue').textContent = data.venue;
   document.getElementById('intro-text').textContent = data.intro;
 
@@ -17,7 +16,7 @@
       prog.pieces.map((piece, i) => {
         const num = String(i + 1).padStart(2, '0');
         const hasComment = piece.performerComment && piece.performerComment.trim();
-        const hasName = piece.performerName && piece.performerName.trim();
+        const hasName    = piece.performerName    && piece.performerName.trim();
 
         const commentBlock = hasComment ? `
           <div class="comment-block">
@@ -53,7 +52,6 @@
   renderPieces(0, 'panel-program1');
   renderPieces(1, 'panel-program2');
 
-  // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

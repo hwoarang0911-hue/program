@@ -27,8 +27,11 @@
     }
   }
 
-  function init() {
-    data = loadData();
+  async function init() {
+    document.querySelectorAll('.admin-panel').forEach(p => {
+      p.innerHTML = '<div style="padding:2rem;color:#888;font-size:.85rem;text-align:center;">불러오는 중...</div>';
+    });
+    data = await loadData();
     renderAll();
     bindTabs();
     bindGlobalSave();
@@ -98,16 +101,16 @@
       </div>`;
   }
 
-  function savePiece(pi, ci) {
+  async function savePiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
     data.programs[pi].pieces[ci].description      = document.getElementById(`desc-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
-    saveData(data);
+    await saveData(data);
     updateStatusDots();
     showPieceMsg(pi, ci, '저장되었습니다 ✓');
   }
 
-  function resetPiece(pi, ci) {
+  async function resetPiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
     if (!confirm('이 곡의 입력 내용을 초기화하시겠습니까?')) return;
     const orig = CONCERT.programs[pi].pieces[ci];
@@ -115,7 +118,7 @@
     data.programs[pi].pieces[ci].performerComment = '';
     document.getElementById(`desc-${pi}-${ci}`).value    = orig.description;
     document.getElementById(`comment-${pi}-${ci}`).value = '';
-    saveData(data);
+    await saveData(data);
     updateStatusDots();
     showPieceMsg(pi, ci, '초기화되었습니다 ✓');
   }
@@ -163,34 +166,21 @@
   }
 
   function bindGlobalSave() {
-    document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('btn-reset').addEventListener('click', async () => {
       if (!confirm('모든 곡의 입력 내용을 전체 초기화하시겠습니까?')) return;
       if (!confirm('정말로 초기화합니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
-      localStorage.removeItem(STORAGE_KEY);
+      const base = JSON.parse(JSON.stringify(CONCERT));
+      await saveData(base);
       location.reload();
     });
 
-    // Auto-save whenever any textarea loses focus
-    document.addEventListener('change', e => {
+    document.addEventListener('change', async e => {
       if (e.target.matches('.form-textarea')) {
         collectAll();
-        saveData(data);
+        await saveData(data);
         updateStatusDots();
       }
     });
-
-    // Save all before navigating away
-    window.addEventListener('beforeunload', () => {
-      collectAll();
-      saveData(data);
-    });
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
   }
 
   function escHtml(str) {
