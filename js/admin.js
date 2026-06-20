@@ -27,8 +27,11 @@
     }
   }
 
-  function init() {
-    data = loadData();
+  async function init() {
+    document.querySelectorAll('.admin-panel').forEach(p => {
+      p.innerHTML = '<div style="padding:2rem;color:#888;font-size:.85rem;text-align:center;">불러오는 중...</div>';
+    });
+    data = await loadData();
     renderAll();
     bindTabs();
     bindGlobalSave();
@@ -82,12 +85,12 @@
         </div>
         <div class="admin-piece-body">
           <div class="form-group">
-            <label class="form-label">곡 소개 (도슨트 텍스트)</label>
+            <label class="form-label">공 소개 (도슨트 텍스트)</label>
             <textarea class="form-textarea desc" id="desc-${pi}-${ci}" rows="6">${escHtml(piece.description)}</textarea>
           </div>
           <div class="form-group">
             <label class="form-label">연주자 코멘트</label>
-            <textarea class="form-textarea" id="comment-${pi}-${ci}" rows="4" placeholder="이 곡에 대한 연주자의 생각이나 느낌을 자유롭게 적어주세요.">${escHtml(piece.performerComment)}</textarea>
+            <textarea class="form-textarea" id="comment-${pi}-${ci}" rows="4" placeholder="이 공에 대한 연주자의 생각이나 느낌을 자유롭게 적어주세요.">${escHtml(piece.performerComment)}</textarea>
           </div>
           <div class="save-row">
             <button class="btn-save" data-pi="${pi}" data-ci="${ci}">저장</button>
@@ -98,24 +101,24 @@
       </div>`;
   }
 
-  function savePiece(pi, ci) {
+  async function savePiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
     data.programs[pi].pieces[ci].description      = document.getElementById(`desc-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
-    saveData(data);
+    await saveData(data);
     updateStatusDots();
     showPieceMsg(pi, ci, '저장되었습니다 ✓');
   }
 
-  function resetPiece(pi, ci) {
+  async function resetPiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
-    if (!confirm('이 곡의 입력 내용을 초기화하시겠습니까?')) return;
+    if (!confirm('이 공의 입력 내용을 초기화하시겠습니까?')) return;
     const orig = CONCERT.programs[pi].pieces[ci];
     data.programs[pi].pieces[ci].description      = orig.description;
     data.programs[pi].pieces[ci].performerComment = '';
     document.getElementById(`desc-${pi}-${ci}`).value    = orig.description;
     document.getElementById(`comment-${pi}-${ci}`).value = '';
-    saveData(data);
+    await saveData(data);
     updateStatusDots();
     showPieceMsg(pi, ci, '초기화되었습니다 ✓');
   }
@@ -163,34 +166,21 @@
   }
 
   function bindGlobalSave() {
-    document.getElementById('btn-reset').addEventListener('click', () => {
-      if (!confirm('모든 곡의 입력 내용을 전체 초기화하시겠습니까?')) return;
+    document.getElementById('btn-reset').addEventListener('click', async () => {
+      if (!confirm('모든 공의 입력 내용을 전체 초기화하시겠습니까?')) return;
       if (!confirm('정말로 초기화합니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
-      localStorage.removeItem(STORAGE_KEY);
+      const base = JSON.parse(JSON.stringify(CONCERT));
+      await saveData(base);
       location.reload();
     });
 
-    // Auto-save whenever any textarea loses focus
-    document.addEventListener('change', e => {
+    document.addEventListener('change', async e => {
       if (e.target.matches('.form-textarea')) {
         collectAll();
-        saveData(data);
+        await saveData(data);
         updateStatusDots();
       }
     });
-
-    // Save all before navigating away
-    window.addEventListener('beforeunload', () => {
-      collectAll();
-      saveData(data);
-    });
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
   }
 
   function escHtml(str) {
