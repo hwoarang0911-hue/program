@@ -167,8 +167,13 @@
 
   function bindGlobalSave() {
     document.getElementById('btn-reset').addEventListener('click', async () => {
-      if (!confirm('모든 공의 입력 내용을 전체 초기화하시겠습니까?')) return;
-      if (!confirm('정말로 초기화합니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
+      const pw = prompt('전체 초기화를 진행하려면 관리자 비밀번호를 입력하세요.');
+      if (pw === null) return;
+      if (pw !== '0000') {
+        alert('비밀번호가 올바르지 않습니다.');
+        return;
+      }
+      if (!confirm('모든 공의 코멘트와 설명이 초기화됩니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
       const base = JSON.parse(JSON.stringify(CONCERT));
       await saveData(base);
       location.reload();
