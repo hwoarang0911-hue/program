@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class="admin-status">
-            <div class="status-dot ${hasComment ? 'has-comment' : ''}" data-dot="${pi}-${ci}"></div>
+            <div class="status-dot ${hasComment ? 'has-comment' : ''}" data-dot="${pi}-${ci}" title="${hasComment ? '코멘트 입력됨' : '코멘트 없음'}"></div>
             <span class="admin-toggle">▾</span>
           </div>
         </div>
@@ -71,10 +71,6 @@
           <div class="form-group">
             <label class="form-label">곡 소개 (도슨트 텍스트)</label>
             <textarea class="form-textarea desc" id="desc-${pi}-${ci}" rows="6">${escHtml(piece.description)}</textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">연주자 이름</label>
-            <input type="text" class="form-input" id="name-${pi}-${ci}" placeholder="연주자 이름을 입력하세요" value="${escHtml(piece.performerName)}">
           </div>
           <div class="form-group">
             <label class="form-label">연주자 코멘트</label>
@@ -90,8 +86,7 @@
 
   function savePiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
-    data.programs[pi].pieces[ci].description = document.getElementById(`desc-${pi}-${ci}`).value;
-    data.programs[pi].pieces[ci].performerName = document.getElementById(`name-${pi}-${ci}`).value;
+    data.programs[pi].pieces[ci].description      = document.getElementById(`desc-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
     saveData(data);
     updateStatusDots();
@@ -104,7 +99,11 @@
     data.programs.forEach((prog, pi) => {
       prog.pieces.forEach((piece, ci) => {
         const dot = document.querySelector(`[data-dot="${pi}-${ci}"]`);
-        if (dot) dot.classList.toggle('has-comment', !!(piece.performerComment && piece.performerComment.trim()));
+        if (dot) {
+          const hasComment = piece.performerComment && piece.performerComment.trim();
+          dot.classList.toggle('has-comment', !!hasComment);
+          dot.title = hasComment ? '코멘트 입력됨' : '코멘트 없음';
+        }
       });
     });
   }
@@ -124,12 +123,10 @@
     document.getElementById('btn-save-all').addEventListener('click', () => {
       data.programs.forEach((prog, pi) => {
         prog.pieces.forEach((piece, ci) => {
-          const d = document.getElementById(`desc-${pi}-${ci}`);
-          const n = document.getElementById(`name-${pi}-${ci}`);
-          const c = document.getElementById(`comment-${pi}-${ci}`);
-          if (d) piece.description = d.value;
-          if (n) piece.performerName = n.value;
-          if (c) piece.performerComment = c.value;
+          const descEl    = document.getElementById(`desc-${pi}-${ci}`);
+          const commentEl = document.getElementById(`comment-${pi}-${ci}`);
+          if (descEl)    piece.description      = descEl.value;
+          if (commentEl) piece.performerComment = commentEl.value;
         });
       });
       saveData(data);
@@ -151,6 +148,10 @@
   }
 
   function escHtml(str) {
-    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return (str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 })();

@@ -95,7 +95,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); font
 .intro-inner { max-width: 680px; margin: 0 auto; text-align: center; }
 .intro-text { font-size: .9rem; color: var(--text-sub); line-height: 2; font-weight: 300; }
 
-.container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+.container { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
 
 .programs { padding: 3.5rem 2rem 5rem; }
 .tab-bar {
