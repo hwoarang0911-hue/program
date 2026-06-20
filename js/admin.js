@@ -85,12 +85,12 @@
         </div>
         <div class="admin-piece-body">
           <div class="form-group">
-            <label class="form-label">공 소개 (도슨트 텍스트)</label>
+            <label class="form-label">곡 소개 (도슨트 텍스트)</label>
             <textarea class="form-textarea desc" id="desc-${pi}-${ci}" rows="6">${escHtml(piece.description)}</textarea>
           </div>
           <div class="form-group">
             <label class="form-label">연주자 코멘트</label>
-            <textarea class="form-textarea" id="comment-${pi}-${ci}" rows="4" placeholder="이 공에 대한 연주자의 생각이나 느낌을 자유롭게 적어주세요.">${escHtml(piece.performerComment)}</textarea>
+            <textarea class="form-textarea" id="comment-${pi}-${ci}" rows="4" placeholder="이 곡에 대한 연주자의 생각이나 느낌을 자유롭게 적어주세요.">${escHtml(piece.performerComment)}</textarea>
           </div>
           <div class="save-row">
             <button class="btn-save" data-pi="${pi}" data-ci="${ci}">저장</button>
@@ -112,7 +112,7 @@
 
   async function resetPiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
-    if (!confirm('이 공의 입력 내용을 초기화하시겠습니까?')) return;
+    if (!confirm('이 곡의 입력 내용을 초기화하시겠습니까?')) return;
     const orig = CONCERT.programs[pi].pieces[ci];
     data.programs[pi].pieces[ci].description      = orig.description;
     data.programs[pi].pieces[ci].performerComment = '';
@@ -173,7 +173,7 @@
         alert('비밀번호가 올바르지 않습니다.');
         return;
       }
-      if (!confirm('모든 공의 코멘트와 설명이 초기화됩니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
+      if (!confirm('모든 곡의 코멘트와 설명이 초기화됩니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
       const base = JSON.parse(JSON.stringify(CONCERT));
       await saveData(base);
       location.reload();
