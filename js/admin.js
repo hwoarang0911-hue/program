@@ -4,6 +4,9 @@
   const loginInput = document.getElementById('login-pw');
   const loginErr = document.getElementById('login-err');
 
+  // ── Main ──
+  let data;
+
   if (sessionStorage.getItem('yeondeul_auth') === '1') {
     overlay.style.display = 'none';
     init();
@@ -23,9 +26,6 @@
       loginInput.focus();
     }
   }
-
-  // ── Main ──
-  let data;
 
   function init() {
     data = loadData();
