@@ -80,10 +80,6 @@
             <textarea class="form-textarea desc" id="desc-${pi}-${ci}" rows="6">${escHtml(piece.description)}</textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">연주자 이름</label>
-            <input type="text" class="form-input" id="name-${pi}-${ci}" placeholder="연주자 이름을 입력하세요" value="${escHtml(piece.performerName)}">
-          </div>
-          <div class="form-group">
             <label class="form-label">연주자 코멘트</label>
             <textarea class="form-textarea" id="comment-${pi}-${ci}" rows="4" placeholder="이 곡에 대한 연주자의 생각이나 느낌을 자유롭게 적어주세요.">${escHtml(piece.performerComment)}</textarea>
           </div>
@@ -97,8 +93,7 @@
 
   function savePiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
-    data.programs[pi].pieces[ci].description   = document.getElementById(`desc-${pi}-${ci}`).value;
-    data.programs[pi].pieces[ci].performerName = document.getElementById(`name-${pi}-${ci}`).value;
+    data.programs[pi].pieces[ci].description      = document.getElementById(`desc-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
     saveData(data);
     updateStatusDots();
@@ -137,10 +132,8 @@
       data.programs.forEach((prog, pi) => {
         prog.pieces.forEach((piece, ci) => {
           const descEl    = document.getElementById(`desc-${pi}-${ci}`);
-          const nameEl    = document.getElementById(`name-${pi}-${ci}`);
           const commentEl = document.getElementById(`comment-${pi}-${ci}`);
           if (descEl)    piece.description      = descEl.value;
-          if (nameEl)    piece.performerName    = nameEl.value;
           if (commentEl) piece.performerComment = commentEl.value;
         });
       });
