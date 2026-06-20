@@ -1,7 +1,7 @@
 const CONCERT = {
   title: "시간 위에 쌓인 소리",
   titleEn: "RESONANCE SHAPED BY TIME",
-  event: "YEUNEUM · 연음 창립 5주년 기념 정기연주회",
+  event: "YEONEUM · 연음 창립 5주년 기념 정기연주회",
   date: "2026년 6월 27일 토요일",
   time: "오후 2시",
   venue: "서울문화예술교육센터 서초 서울체임버홀",
@@ -176,7 +176,7 @@ const CONCERT = {
   ]
 };
 
-const STORAGE_KEY = "yeondeul18_data";
+const STORAGE_KEY = "yeoneum_concert_data";
 const ADMIN_PW = "0627";
 
 function loadData() {
