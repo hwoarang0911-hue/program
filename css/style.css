@@ -52,6 +52,14 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); font
   transition: color .2s;
 }
 .nav-link:hover { color: var(--gold); }
+.nav-link-icon {
+  display: flex; align-items: center;
+  color: rgba(255,255,255,.35);
+  padding: 4px;
+  opacity: .7;
+  transition: color .2s, opacity .2s;
+}
+.nav-link-icon:hover { color: var(--gold); opacity: 1; }
 
 /* ─── HERO ─── */
 .hero {
