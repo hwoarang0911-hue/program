@@ -1,5 +1,4 @@
 (function () {
-  // ── Auth ──
   const overlay = document.getElementById('login-overlay');
   const loginInput = document.getElementById('login-pw');
   const loginErr = document.getElementById('login-err');
@@ -24,7 +23,6 @@
     }
   }
 
-  // ── Main ──
   let data;
 
   function init() {
@@ -40,15 +38,10 @@
       const panel = document.getElementById(panelId);
       panel.innerHTML = prog.pieces.map((piece, ci) => renderPieceForm(piece, pi, ci)).join('');
       panel.querySelectorAll('.admin-piece-head').forEach(head => {
-        head.addEventListener('click', () => {
-          head.closest('.admin-piece').classList.toggle('open');
-        });
+        head.addEventListener('click', () => head.closest('.admin-piece').classList.toggle('open'));
       });
       panel.querySelectorAll('.btn-save').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          savePiece(btn.dataset.pi, btn.dataset.ci);
-        });
+        btn.addEventListener('click', e => { e.stopPropagation(); savePiece(btn.dataset.pi, btn.dataset.ci); });
       });
     });
     updateStatusDots();
@@ -70,7 +63,7 @@
             </div>
           </div>
           <div class="admin-status">
-            <div class="status-dot ${hasComment ? 'has-comment' : ''}" data-dot="${pi}-${ci}" title="${hasComment ? '코멘트 입력됨' : '코멘트 없음'}"></div>
+            <div class="status-dot ${hasComment ? 'has-comment' : ''}" data-dot="${pi}-${ci}"></div>
             <span class="admin-toggle">▾</span>
           </div>
         </div>
@@ -97,12 +90,11 @@
 
   function savePiece(pi, ci) {
     pi = parseInt(pi); ci = parseInt(ci);
-    data.programs[pi].pieces[ci].description   = document.getElementById(`desc-${pi}-${ci}`).value;
+    data.programs[pi].pieces[ci].description = document.getElementById(`desc-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerName = document.getElementById(`name-${pi}-${ci}`).value;
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
     saveData(data);
     updateStatusDots();
-
     const msg = document.getElementById(`msg-${pi}-${ci}`);
     msg.classList.add('show');
     setTimeout(() => msg.classList.remove('show'), 2200);
@@ -112,11 +104,7 @@
     data.programs.forEach((prog, pi) => {
       prog.pieces.forEach((piece, ci) => {
         const dot = document.querySelector(`[data-dot="${pi}-${ci}"]`);
-        if (dot) {
-          const hasComment = piece.performerComment && piece.performerComment.trim();
-          dot.classList.toggle('has-comment', !!hasComment);
-          dot.title = hasComment ? '코멘트 입력됨' : '코멘트 없음';
-        }
+        if (dot) dot.classList.toggle('has-comment', !!(piece.performerComment && piece.performerComment.trim()));
       });
     });
   }
@@ -136,19 +124,18 @@
     document.getElementById('btn-save-all').addEventListener('click', () => {
       data.programs.forEach((prog, pi) => {
         prog.pieces.forEach((piece, ci) => {
-          const descEl    = document.getElementById(`desc-${pi}-${ci}`);
-          const nameEl    = document.getElementById(`name-${pi}-${ci}`);
-          const commentEl = document.getElementById(`comment-${pi}-${ci}`);
-          if (descEl)    piece.description      = descEl.value;
-          if (nameEl)    piece.performerName    = nameEl.value;
-          if (commentEl) piece.performerComment = commentEl.value;
+          const d = document.getElementById(`desc-${pi}-${ci}`);
+          const n = document.getElementById(`name-${pi}-${ci}`);
+          const c = document.getElementById(`comment-${pi}-${ci}`);
+          if (d) piece.description = d.value;
+          if (n) piece.performerName = n.value;
+          if (c) piece.performerComment = c.value;
         });
       });
       saveData(data);
       updateStatusDots();
       showToast('모든 내용이 저장되었습니다 ✓');
     });
-
     document.getElementById('btn-reset').addEventListener('click', () => {
       if (!confirm('저장된 모든 내용을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
       localStorage.removeItem(STORAGE_KEY);
@@ -164,10 +151,6 @@
   }
 
   function escHtml(str) {
-    return (str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 })();
