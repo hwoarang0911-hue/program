@@ -1,4 +1,5 @@
 (function () {
+  // ── Auth ──
   const overlay = document.getElementById('login-overlay');
   const loginInput = document.getElementById('login-pw');
   const loginErr = document.getElementById('login-err');
@@ -23,6 +24,7 @@
     }
   }
 
+  // ── Main ──
   let data;
 
   function init() {
@@ -38,10 +40,15 @@
       const panel = document.getElementById(panelId);
       panel.innerHTML = prog.pieces.map((piece, ci) => renderPieceForm(piece, pi, ci)).join('');
       panel.querySelectorAll('.admin-piece-head').forEach(head => {
-        head.addEventListener('click', () => head.closest('.admin-piece').classList.toggle('open'));
+        head.addEventListener('click', () => {
+          head.closest('.admin-piece').classList.toggle('open');
+        });
       });
       panel.querySelectorAll('.btn-save').forEach(btn => {
-        btn.addEventListener('click', e => { e.stopPropagation(); savePiece(btn.dataset.pi, btn.dataset.ci); });
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          savePiece(btn.dataset.pi, btn.dataset.ci);
+        });
       });
     });
     updateStatusDots();
@@ -90,6 +97,7 @@
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
     saveData(data);
     updateStatusDots();
+
     const msg = document.getElementById(`msg-${pi}-${ci}`);
     msg.classList.add('show');
     setTimeout(() => msg.classList.remove('show'), 2200);
@@ -119,24 +127,44 @@
     });
   }
 
+  function collectAll() {
+    data.programs.forEach((prog, pi) => {
+      prog.pieces.forEach((piece, ci) => {
+        const descEl    = document.getElementById(`desc-${pi}-${ci}`);
+        const commentEl = document.getElementById(`comment-${pi}-${ci}`);
+        if (descEl)    piece.description      = descEl.value;
+        if (commentEl) piece.performerComment = commentEl.value;
+      });
+    });
+  }
+
   function bindGlobalSave() {
     document.getElementById('btn-save-all').addEventListener('click', () => {
-      data.programs.forEach((prog, pi) => {
-        prog.pieces.forEach((piece, ci) => {
-          const descEl    = document.getElementById(`desc-${pi}-${ci}`);
-          const commentEl = document.getElementById(`comment-${pi}-${ci}`);
-          if (descEl)    piece.description      = descEl.value;
-          if (commentEl) piece.performerComment = commentEl.value;
-        });
-      });
+      collectAll();
       saveData(data);
       updateStatusDots();
       showToast('모든 내용이 저장되었습니다 ✓');
     });
+
     document.getElementById('btn-reset').addEventListener('click', () => {
       if (!confirm('저장된 모든 내용을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
+    });
+
+    // Auto-save whenever any textarea loses focus
+    document.addEventListener('change', e => {
+      if (e.target.matches('.form-textarea')) {
+        collectAll();
+        saveData(data);
+        updateStatusDots();
+      }
+    });
+
+    // Save all before navigating away
+    window.addEventListener('beforeunload', () => {
+      collectAll();
+      saveData(data);
     });
   }
 
