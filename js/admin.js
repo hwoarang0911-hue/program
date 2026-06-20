@@ -50,6 +50,12 @@
           savePiece(btn.dataset.pi, btn.dataset.ci);
         });
       });
+      panel.querySelectorAll('.btn-reset-piece').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          resetPiece(btn.dataset.pi, btn.dataset.ci);
+        });
+      });
     });
     updateStatusDots();
   }
@@ -85,7 +91,8 @@
           </div>
           <div class="save-row">
             <button class="btn-save" data-pi="${pi}" data-ci="${ci}">저장</button>
-            <span class="save-msg" id="msg-${pi}-${ci}">저장되었습니다 ✓</span>
+            <button class="btn-reset-piece" data-pi="${pi}" data-ci="${ci}">초기화</button>
+            <span class="save-msg" id="msg-${pi}-${ci}"></span>
           </div>
         </div>
       </div>`;
@@ -97,8 +104,25 @@
     data.programs[pi].pieces[ci].performerComment = document.getElementById(`comment-${pi}-${ci}`).value;
     saveData(data);
     updateStatusDots();
+    showPieceMsg(pi, ci, '저장되었습니다 ✓');
+  }
 
+  function resetPiece(pi, ci) {
+    pi = parseInt(pi); ci = parseInt(ci);
+    if (!confirm('이 곡의 입력 내용을 초기화하시겠습니까?')) return;
+    const orig = CONCERT.programs[pi].pieces[ci];
+    data.programs[pi].pieces[ci].description      = orig.description;
+    data.programs[pi].pieces[ci].performerComment = '';
+    document.getElementById(`desc-${pi}-${ci}`).value    = orig.description;
+    document.getElementById(`comment-${pi}-${ci}`).value = '';
+    saveData(data);
+    updateStatusDots();
+    showPieceMsg(pi, ci, '초기화되었습니다 ✓');
+  }
+
+  function showPieceMsg(pi, ci, text) {
     const msg = document.getElementById(`msg-${pi}-${ci}`);
+    msg.textContent = text;
     msg.classList.add('show');
     setTimeout(() => msg.classList.remove('show'), 2200);
   }
@@ -139,15 +163,9 @@
   }
 
   function bindGlobalSave() {
-    document.getElementById('btn-save-all').addEventListener('click', () => {
-      collectAll();
-      saveData(data);
-      updateStatusDots();
-      showToast('모든 내용이 저장되었습니다 ✓');
-    });
-
     document.getElementById('btn-reset').addEventListener('click', () => {
-      if (!confirm('저장된 모든 내용을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+      if (!confirm('모든 곡의 입력 내용을 전체 초기화하시겠습니까?')) return;
+      if (!confirm('정말로 초기화합니다. 이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?')) return;
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
     });
