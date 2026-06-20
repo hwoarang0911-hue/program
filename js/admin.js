@@ -127,16 +127,20 @@
     });
   }
 
+  function collectAll() {
+    data.programs.forEach((prog, pi) => {
+      prog.pieces.forEach((piece, ci) => {
+        const descEl    = document.getElementById(`desc-${pi}-${ci}`);
+        const commentEl = document.getElementById(`comment-${pi}-${ci}`);
+        if (descEl)    piece.description      = descEl.value;
+        if (commentEl) piece.performerComment = commentEl.value;
+      });
+    });
+  }
+
   function bindGlobalSave() {
     document.getElementById('btn-save-all').addEventListener('click', () => {
-      data.programs.forEach((prog, pi) => {
-        prog.pieces.forEach((piece, ci) => {
-          const descEl    = document.getElementById(`desc-${pi}-${ci}`);
-          const commentEl = document.getElementById(`comment-${pi}-${ci}`);
-          if (descEl)    piece.description      = descEl.value;
-          if (commentEl) piece.performerComment = commentEl.value;
-        });
-      });
+      collectAll();
       saveData(data);
       updateStatusDots();
       showToast('모든 내용이 저장되었습니다 ✓');
@@ -146,6 +150,21 @@
       if (!confirm('저장된 모든 내용을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
+    });
+
+    // Auto-save whenever any textarea loses focus
+    document.addEventListener('change', e => {
+      if (e.target.matches('.form-textarea')) {
+        collectAll();
+        saveData(data);
+        updateStatusDots();
+      }
+    });
+
+    // Save all before navigating away
+    window.addEventListener('beforeunload', () => {
+      collectAll();
+      saveData(data);
     });
   }
 
