@@ -61,6 +61,13 @@
     });
   });
 
+  if (window.location.hash === '#program2') {
+    document.querySelector('[data-tab="panel-program1"]').classList.remove('active');
+    document.querySelector('[data-tab="panel-program2"]').classList.add('active');
+    document.getElementById('panel-program1').classList.remove('active');
+    document.getElementById('panel-program2').classList.add('active');
+  }
+
   function escHtml(str) {
     return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
