@@ -194,12 +194,13 @@
 
     // 5 distinct visual layers — radial waves from off-screen centers.
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
+    // s0 has negative base so only wave peaks show → very sparse opening dots.
     const LAYERS = [
-      { nh:5, freq:0.055, amp:2.5, base:2.2, cx:-0.28, cy:-0.38 }, // s0: upper-left outside
-      { nh:8, freq:0.082, amp:2.0, base:1.6, cx: 1.35, cy:-0.12 }, // s1: upper-right outside
-      { nh:4, freq:0.046, amp:5.2, base:2.8, cx:-0.40, cy: 0.58 }, // s2: left-center outside
-      { nh:2, freq:0.026, amp:7.8, base:4.5, cx: 1.22, cy: 1.28 }, // s3: lower-right outside
-      { nh:1, freq:0.018, amp:1.5, base:1.0, cx: 0.48, cy:-0.85 }, // s4: top-center outside
+      { nh:2, freq:0.040, amp:1.0, base:-0.6, cx:-0.28, cy:-0.38 }, // s0: sparse opening
+      { nh:8, freq:0.082, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
+      { nh:4, freq:0.046, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
+      { nh:2, freq:0.026, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
+      { nh:1, freq:0.018, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
     ];
 
     function lerpLayer(a, b, t) {
@@ -213,21 +214,18 @@
       };
     }
 
-    // Whole note ellipse — off-center, tilted ~12°
-    // Positioned in lower-center area of the viewport
-    const NOTE = { ox:.45, oy:.62, rxF:.21, ryF:.135, ang:.22, sig:13 };
-
-    function noteWeight(x, y) {
+    // Droplet ripple — concentric rings decaying outward from center,
+    // like a water drop hitting a still surface.
+    function dropletWeight(x, y) {
       const minD = Math.min(W, H);
-      const cx   = W * NOTE.ox,   cy = H * NOTE.oy;
-      const rx   = minD * NOTE.rxF, ry = minD * NOTE.ryF;
-      const sig  = Math.max(10, minD * 0.016);
-      const dx   = x - cx,         dy = y - cy;
-      const lx   = dx * Math.cos(-NOTE.ang) - dy * Math.sin(-NOTE.ang);
-      const ly   = dx * Math.sin(-NOTE.ang) + dy * Math.cos(-NOTE.ang);
-      const r    = Math.sqrt((lx / rx) ** 2 + (ly / ry) ** 2);
-      const dist = Math.abs(r - 1) * (rx + ry) / 2;
-      return Math.exp(-(dist * dist) / (2 * sig * sig));
+      const cx   = W * 0.50,   cy = H * 0.52;
+      const dx   = x - cx,     dy = y - cy;
+      const d    = Math.sqrt(dx * dx + dy * dy);
+      const maxR = minD * 0.46;
+      if (d > maxR) return 0;
+      const falloff = Math.exp(-Math.pow(d / maxR, 1.6) * 2.8);
+      const ring    = Math.max(0, Math.sin(d * 0.034 - 0.4));
+      return falloff * ring;
     }
 
     function render() {
@@ -272,12 +270,12 @@
           wave /= nh > 1 ? 1.5 : 1.0;
 
           const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
-          const wA = clamp(0.06 + (wave + 1) * 0.37, 0.02, 0.88);
+          const wA = clamp(0.03 + (wave + 1) * 0.20, 0.01, 0.48);
 
-          // Whole note shape: dots near ellipse outline grow, others shrink
-          const nw = noteWeight(x, y);
-          const nR = nw * GRID * 0.45;
-          const nA = nw * 0.84;
+          // Droplet: dots swell at ripple crests, invisible at troughs
+          const nw = dropletWeight(x, y);
+          const nR = nw * GRID * 0.50;
+          const nA = nw * 0.82;
 
           const radius = lerp(wR, nR, noteBlend);
           const alpha  = lerp(wA, nA, noteBlend);
