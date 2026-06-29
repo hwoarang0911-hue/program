@@ -186,14 +186,6 @@
     const ctx    = canvas.getContext('2d');
     let W, H;
 
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-      render();
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
     const lerp  = (a, b, t) => a + (b - a) * t;
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const ease  = t => t * t * (3 - 2 * t);
@@ -301,6 +293,14 @@
         }
       }
     }
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      render();
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     // Animation loop: only redraws on scroll change
     let lastScrollY = -1;
