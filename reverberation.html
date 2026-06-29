@@ -196,11 +196,11 @@
     // 5 distinct visual layers — radial waves from off-screen centers.
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     const LAYERS = [
-      { nh:2, freq:0.040, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
-      { nh:8, freq:0.082, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
-      { nh:4, freq:0.046, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
-      { nh:2, freq:0.026, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
-      { nh:1, freq:0.018, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
+      { nh:2, freq:0.040, amp:5.5, base:4.0,  cx:-0.28, cy:-0.38 }, // s0: light opening
+      { nh:8, freq:0.082, amp:4.5, base:3.5,  cx: 1.35, cy:-0.12 }, // s1: 8배음
+      { nh:4, freq:0.046, amp:10.0,base:5.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
+      { nh:2, freq:0.026, amp:14.0,base:8.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
+      { nh:1, freq:0.018, amp:4.0, base:3.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
     ];
 
     function lerpLayer(a, b, t) {
@@ -238,9 +238,9 @@
       // Wave phase: scroll-driven + slow time drift so it idles gently
       const phase = window.scrollY * 0.016 + animTime * 0.18;
 
-      // Background subtly darkens
-      const bg = Math.round(lerp(242, 229, rawP));
-      ctx.fillStyle = `rgb(${bg},${bg - 2},${bg - 5})`;
+      // Background: near-white, subtly darkens
+      const bg = Math.round(lerp(252, 242, rawP));
+      ctx.fillStyle = `rgb(${bg},${bg - 1},${bg - 3})`;
       ctx.fillRect(0, 0, W, H);
 
       const cols = Math.ceil(W / GRID) + 2;
@@ -264,7 +264,7 @@
           }
           wave /= nh > 1 ? 1.5 : 1.0;
 
-          const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
+          const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.50);
           const wA = clamp(0.03 + (wave + 1) * 0.20, 0.01, 0.48);
 
           // Interference finale: moiré bands pulse from near-invisible to present
