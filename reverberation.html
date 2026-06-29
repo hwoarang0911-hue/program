@@ -197,11 +197,11 @@
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     // s0 has negative base so only wave peaks show → very sparse opening dots.
     const LAYERS = [
-      { nh:2, freq:0.013, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
-      { nh:8, freq:0.027, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
-      { nh:4, freq:0.015, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
-      { nh:2, freq:0.009, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
-      { nh:1, freq:0.006, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
+      { nh:2, freq:0.006, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
+      { nh:8, freq:0.013, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
+      { nh:4, freq:0.007, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
+      { nh:2, freq:0.004, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
+      { nh:1, freq:0.003, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
     ];
 
     function lerpLayer(a, b, t) {
@@ -288,7 +288,7 @@
 
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(16,16,16,${alpha.toFixed(2)})`;
+          ctx.fillStyle = `rgba(120,120,120,${alpha.toFixed(2)})`;
           ctx.fill();
         }
       }
