@@ -191,6 +191,7 @@
     const ease  = t => t * t * (3 - 2 * t);
 
     const GRID = 24;
+    let   animTime = 0;
 
     // 5 distinct visual layers — radial waves from off-screen centers.
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
@@ -214,18 +215,13 @@
       };
     }
 
-    // Droplet ripple — concentric rings decaying outward from center,
-    // like a water drop hitting a still surface.
-    function dropletWeight(x, y) {
-      const minD = Math.min(W, H);
-      const cx   = W * 0.50,   cy = H * 0.52;
-      const dx   = x - cx,     dy = y - cy;
-      const d    = Math.sqrt(dx * dx + dy * dy);
-      const maxR = minD * 0.46;
-      if (d > maxR) return 0;
-      const falloff = Math.exp(-Math.pow(d / maxR, 1.6) * 2.8);
-      const ring    = Math.max(0, Math.sin(d * 0.034 - 0.4));
-      return falloff * ring;
+    // Finale: two plane waves at close angles create interference bands —
+    // complex diagonal moiré that slowly drifts, like reverb dissolving into air.
+    function finaleWeight(x, y) {
+      const f  = 0.022;
+      const w1 = Math.sin(x * f * Math.cos(0.52) + y * f * Math.sin(0.52) + animTime * 0.12);
+      const w2 = Math.sin(x * f * Math.cos(0.80) + y * f * Math.sin(0.80) - animTime * 0.09);
+      return clamp((w1 * w2 + 1) * 0.5, 0, 1);
     }
 
     function render() {
@@ -240,8 +236,8 @@
       // Whole note: fades in during s4 (rawP 0.72 → 1.0)
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
 
-      // Wave phase = scroll position (no time counter → frozen when idle)
-      const phase = window.scrollY * 0.016;
+      // Wave phase: scroll-driven + slow time drift so it idles gently
+      const phase = window.scrollY * 0.016 + animTime * 0.18;
 
       // Background subtly darkens
       const bg = Math.round(lerp(242, 229, rawP));
@@ -272,10 +268,10 @@
           const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
           const wA = clamp(0.03 + (wave + 1) * 0.20, 0.01, 0.48);
 
-          // Droplet: dots swell at ripple crests, invisible at troughs
-          const nw = dropletWeight(x, y);
-          const nR = nw * GRID * 0.50;
-          const nA = nw * 0.82;
+          // Interference finale: moiré bands pulse from near-invisible to present
+          const nw = finaleWeight(x, y);
+          const nR = lerp(0.5, GRID * 0.42, nw);
+          const nA = lerp(0.02, 0.52, nw);
 
           const radius = lerp(wR, nR, noteBlend);
           const alpha  = lerp(wA, nA, noteBlend);
@@ -298,13 +294,12 @@
     resize();
     window.addEventListener('resize', resize);
 
-    // Animation loop: only redraws on scroll change
-    let lastScrollY = -1;
-    (function loop() {
-      if (window.scrollY !== lastScrollY) {
-        lastScrollY = window.scrollY;
-        render();
-      }
+    // Animation loop: time advances every frame for idle drift; scroll drives wave phase
+    let prevTs = null;
+    (function loop(ts) {
+      if (prevTs !== null) animTime += (ts - prevTs) * 0.001;
+      prevTs = ts;
+      render();
       requestAnimationFrame(loop);
     })();
 
