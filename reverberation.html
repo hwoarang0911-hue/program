@@ -192,16 +192,14 @@
 
     const GRID = 24;
 
-    // 5 distinct visual layers.
-    // nh = num harmonics, freq = spatial freq, amp = dot size amplitude,
-    // base = base dot radius, bA = wave base angle (radians)
-    // Each bA is very different → completely different wave direction per layer.
+    // 5 distinct visual layers — radial waves from off-screen centers.
+    // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     const LAYERS = [
-      { nh:5, freq:0.072, amp:2.2, base:2.0, bA:0.40 }, // s0: opening
-      { nh:8, freq:0.110, amp:1.8, base:1.5, bA:1.83 }, // s1: 8배음 — small, chaotic
-      { nh:4, freq:0.056, amp:5.0, base:2.8, bA:0.95 }, // s2: 4배음 — medium, dramatic
-      { nh:2, freq:0.030, amp:7.5, base:4.5, bA:2.55 }, // s3: 2배음 — large, slow
-      { nh:1, freq:0.018, amp:1.2, base:1.0, bA:1.20 }, // s4: fundamental (suppressed)
+      { nh:5, freq:0.055, amp:2.5, base:2.2, cx:-0.28, cy:-0.38 }, // s0: upper-left outside
+      { nh:8, freq:0.082, amp:2.0, base:1.6, cx: 1.35, cy:-0.12 }, // s1: upper-right outside
+      { nh:4, freq:0.046, amp:5.2, base:2.8, cx:-0.40, cy: 0.58 }, // s2: left-center outside
+      { nh:2, freq:0.026, amp:7.8, base:4.5, cx: 1.22, cy: 1.28 }, // s3: lower-right outside
+      { nh:1, freq:0.018, amp:1.5, base:1.0, cx: 0.48, cy:-0.85 }, // s4: top-center outside
     ];
 
     function lerpLayer(a, b, t) {
@@ -210,7 +208,8 @@
         freq: lerp(a.freq, b.freq, t),
         amp:  lerp(a.amp,  b.amp,  t),
         base: lerp(a.base, b.base, t),
-        bA:   lerp(a.bA,   b.bA,   t),
+        cx:   lerp(a.cx,   b.cx,   t),
+        cy:   lerp(a.cy,   b.cy,   t),
       };
     }
 
@@ -260,16 +259,15 @@
           const x = c * GRID;
           const y = r * GRID;
 
-          // Asymmetric directional plane waves.
-          // Each harmonic travels in a different direction (irrational angle steps)
-          // → no axis of symmetry, no radial center.
+          // Radial waves from off-screen origin — concentric rings passing through viewport.
+          const ocx  = W * st.cx;
+          const ocy  = H * st.cy;
+          const ddx  = x - ocx;
+          const ddy  = y - ocy;
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
           let wave = 0;
           for (let n = 1; n <= nh; n++) {
-            const a  = st.bA + n * 1.13; // 1.13 ≈ irrational → directions never repeat
-            const fx = st.freq * n * Math.cos(a);
-            const fy = st.freq * n * Math.sin(a);
-            const spd = n % 2 === 0 ? 0.9 : -0.7;
-            wave += Math.sin(x * fx + y * fy + phase * n * spd) / n;
+            wave += Math.sin(dist * st.freq * n - phase * n) / n;
           }
           wave /= nh > 1 ? 1.5 : 1.0;
 
