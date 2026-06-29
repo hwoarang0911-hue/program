@@ -197,11 +197,11 @@
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     // s0 has negative base so only wave peaks show → very sparse opening dots.
     const LAYERS = [
-      { nh:2, freq:0.040, amp:5.5, base:4.0,  cx:-0.28, cy:-0.38 }, // s0: light opening
-      { nh:8, freq:0.082, amp:4.5, base:3.5,  cx: 1.35, cy:-0.12 }, // s1: 8배음
-      { nh:4, freq:0.046, amp:10.0,base:5.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
-      { nh:2, freq:0.026, amp:14.0,base:8.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
-      { nh:1, freq:0.018, amp:4.0, base:3.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
+      { nh:2, freq:0.013, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
+      { nh:8, freq:0.027, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
+      { nh:4, freq:0.015, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
+      { nh:2, freq:0.009, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
+      { nh:1, freq:0.006, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
     ];
 
     function lerpLayer(a, b, t) {
@@ -248,24 +248,32 @@
       const rows = Math.ceil(H / GRID) + 2;
       const nh   = Math.max(1, Math.round(st.nh));
 
+      // Perspective oval: rotate coords then squish y — waves look like
+      // circular ripples seen from a slight elevation angle (3D effect).
+      const PC = Math.cos(-0.22);
+      const PS = Math.sin(-0.22);
+      const PY = 1.85;
+
       for (let r = 0; r <= rows; r++) {
         for (let c = 0; c <= cols; c++) {
           const x = c * GRID;
           const y = r * GRID;
 
-          // Radial waves from off-screen origin — concentric rings passing through viewport.
+          // Elliptical distance from off-screen origin → oval wave fronts.
           const ocx  = W * st.cx;
           const ocy  = H * st.cy;
           const ddx  = x - ocx;
           const ddy  = y - ocy;
-          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+          const rx   = ddx * PC - ddy * PS;
+          const ry   = ddx * PS + ddy * PC;
+          const dist = Math.sqrt(rx * rx + (ry * PY) * (ry * PY));
           let wave = 0;
           for (let n = 1; n <= nh; n++) {
             wave += Math.sin(dist * st.freq * n - phase * n) / n;
           }
           wave /= nh > 1 ? 1.5 : 1.0;
 
-          const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.50);
+          const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
           const wA = clamp(0.03 + (wave + 1) * 0.20, 0.01, 0.48);
 
           // Interference finale: moiré bands pulse from near-invisible to present
