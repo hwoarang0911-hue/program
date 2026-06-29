@@ -33,7 +33,6 @@
       position: relative;
     }
 
-    /* Last scene: text at top, whole note fills lower area */
     #s4 {
       justify-content: flex-start;
       padding-top: 13vh;
@@ -186,30 +185,18 @@
     const ctx    = canvas.getContext('2d');
     let W, H;
 
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-      render();
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
     const lerp  = (a, b, t) => a + (b - a) * t;
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const ease  = t => t * t * (3 - 2 * t);
 
     const GRID = 24;
 
-    // 5 distinct visual layers.
-    // nh = num harmonics, freq = spatial freq, amp = dot size amplitude,
-    // base = base dot radius, bA = wave base angle (radians)
-    // Each bA is very different → completely different wave direction per layer.
     const LAYERS = [
-      { nh:5, freq:0.072, amp:2.2, base:2.0, bA:0.40 }, // s0: opening
-      { nh:8, freq:0.110, amp:1.8, base:1.5, bA:1.83 }, // s1: 8배음 — small, chaotic
-      { nh:4, freq:0.056, amp:5.0, base:2.8, bA:0.95 }, // s2: 4배음 — medium, dramatic
-      { nh:2, freq:0.030, amp:7.5, base:4.5, bA:2.55 }, // s3: 2배음 — large, slow
-      { nh:1, freq:0.018, amp:1.2, base:1.0, bA:1.20 }, // s4: fundamental (suppressed)
+      { nh:5, freq:0.072, amp:2.2, base:2.0, bA:0.40 },
+      { nh:8, freq:0.110, amp:1.8, base:1.5, bA:1.83 },
+      { nh:4, freq:0.056, amp:5.0, base:2.8, bA:0.95 },
+      { nh:2, freq:0.030, amp:7.5, base:4.5, bA:2.55 },
+      { nh:1, freq:0.018, amp:1.2, base:1.0, bA:1.20 },
     ];
 
     function lerpLayer(a, b, t) {
@@ -222,16 +209,14 @@
       };
     }
 
-    // Whole note ellipse — off-center, tilted ~12°
-    // Positioned in lower-center area of the viewport
-    const NOTE = { ox:.45, oy:.62, rxF:.21, ryF:.135, ang:.22, sig:13 };
+    const NOTE = { ox:.45, oy:.62, rxF:.21, ryF:.135, ang:.22 };
 
     function noteWeight(x, y) {
       const minD = Math.min(W, H);
-      const cx   = W * NOTE.ox,   cy = H * NOTE.oy;
+      const cx   = W * NOTE.ox,    cy = H * NOTE.oy;
       const rx   = minD * NOTE.rxF, ry = minD * NOTE.ryF;
       const sig  = Math.max(10, minD * 0.016);
-      const dx   = x - cx,         dy = y - cy;
+      const dx   = x - cx,          dy = y - cy;
       const lx   = dx * Math.cos(-NOTE.ang) - dy * Math.sin(-NOTE.ang);
       const ly   = dx * Math.sin(-NOTE.ang) + dy * Math.cos(-NOTE.ang);
       const r    = Math.sqrt((lx / rx) ** 2 + (ly / ry) ** 2);
@@ -243,18 +228,13 @@
       const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const rawP = clamp(window.scrollY / scrollMax, 0, 1);
 
-      // Which transition segment (0–3) and progress within it
       const seg  = Math.min(3, Math.floor(rawP * 4));
       const segP = ease(clamp(rawP * 4 - seg, 0, 1));
       const st   = lerpLayer(LAYERS[seg], LAYERS[seg + 1], segP);
 
-      // Whole note: fades in during s4 (rawP 0.72 → 1.0)
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
-
-      // Wave phase = scroll position (no time counter → frozen when idle)
       const phase = window.scrollY * 0.016;
 
-      // Background subtly darkens
       const bg = Math.round(lerp(242, 229, rawP));
       ctx.fillStyle = `rgb(${bg},${bg - 2},${bg - 5})`;
       ctx.fillRect(0, 0, W, H);
@@ -268,14 +248,11 @@
           const x = c * GRID;
           const y = r * GRID;
 
-          // Asymmetric directional plane waves.
-          // Each harmonic travels in a different direction (irrational angle steps)
-          // → no axis of symmetry, no radial center.
           let wave = 0;
           for (let n = 1; n <= nh; n++) {
-            const a  = st.bA + n * 1.13; // 1.13 ≈ irrational → directions never repeat
-            const fx = st.freq * n * Math.cos(a);
-            const fy = st.freq * n * Math.sin(a);
+            const a   = st.bA + n * 1.13;
+            const fx  = st.freq * n * Math.cos(a);
+            const fy  = st.freq * n * Math.sin(a);
             const spd = n % 2 === 0 ? 0.9 : -0.7;
             wave += Math.sin(x * fx + y * fy + phase * n * spd) / n;
           }
@@ -284,7 +261,6 @@
           const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
           const wA = clamp(0.06 + (wave + 1) * 0.37, 0.02, 0.88);
 
-          // Whole note shape: dots near ellipse outline grow, others shrink
           const nw = noteWeight(x, y);
           const nR = nw * GRID * 0.45;
           const nA = nw * 0.84;
@@ -302,7 +278,14 @@
       }
     }
 
-    // Animation loop: only redraws on scroll change
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      render();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
     let lastScrollY = -1;
     (function loop() {
       if (window.scrollY !== lastScrollY) {
@@ -312,7 +295,6 @@
       requestAnimationFrame(loop);
     })();
 
-    // Text fade-in + progress dots
     const scenes  = document.querySelectorAll('.scene');
     const navDots = document.querySelectorAll('.progress-dot');
 
