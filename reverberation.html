@@ -33,6 +33,7 @@
       position: relative;
     }
 
+    /* Last scene: text at top, whole note fills lower area */
     #s4 {
       justify-content: flex-start;
       padding-top: 13vh;
@@ -191,12 +192,14 @@
 
     const GRID = 24;
 
+    // 5 distinct visual layers — radial waves from off-screen centers.
+    // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     const LAYERS = [
-      { nh:5, freq:0.072, amp:2.2, base:2.0, bA:0.40 },
-      { nh:8, freq:0.110, amp:1.8, base:1.5, bA:1.83 },
-      { nh:4, freq:0.056, amp:5.0, base:2.8, bA:0.95 },
-      { nh:2, freq:0.030, amp:7.5, base:4.5, bA:2.55 },
-      { nh:1, freq:0.018, amp:1.2, base:1.0, bA:1.20 },
+      { nh:5, freq:0.055, amp:2.5, base:2.2, cx:-0.28, cy:-0.38 }, // s0: upper-left outside
+      { nh:8, freq:0.082, amp:2.0, base:1.6, cx: 1.35, cy:-0.12 }, // s1: upper-right outside
+      { nh:4, freq:0.046, amp:5.2, base:2.8, cx:-0.40, cy: 0.58 }, // s2: left-center outside
+      { nh:2, freq:0.026, amp:7.8, base:4.5, cx: 1.22, cy: 1.28 }, // s3: lower-right outside
+      { nh:1, freq:0.018, amp:1.5, base:1.0, cx: 0.48, cy:-0.85 }, // s4: top-center outside
     ];
 
     function lerpLayer(a, b, t) {
@@ -205,18 +208,21 @@
         freq: lerp(a.freq, b.freq, t),
         amp:  lerp(a.amp,  b.amp,  t),
         base: lerp(a.base, b.base, t),
-        bA:   lerp(a.bA,   b.bA,   t),
+        cx:   lerp(a.cx,   b.cx,   t),
+        cy:   lerp(a.cy,   b.cy,   t),
       };
     }
 
-    const NOTE = { ox:.45, oy:.62, rxF:.21, ryF:.135, ang:.22 };
+    // Whole note ellipse — off-center, tilted ~12°
+    // Positioned in lower-center area of the viewport
+    const NOTE = { ox:.45, oy:.62, rxF:.21, ryF:.135, ang:.22, sig:13 };
 
     function noteWeight(x, y) {
       const minD = Math.min(W, H);
-      const cx   = W * NOTE.ox,    cy = H * NOTE.oy;
+      const cx   = W * NOTE.ox,   cy = H * NOTE.oy;
       const rx   = minD * NOTE.rxF, ry = minD * NOTE.ryF;
       const sig  = Math.max(10, minD * 0.016);
-      const dx   = x - cx,          dy = y - cy;
+      const dx   = x - cx,         dy = y - cy;
       const lx   = dx * Math.cos(-NOTE.ang) - dy * Math.sin(-NOTE.ang);
       const ly   = dx * Math.sin(-NOTE.ang) + dy * Math.cos(-NOTE.ang);
       const r    = Math.sqrt((lx / rx) ** 2 + (ly / ry) ** 2);
@@ -228,13 +234,18 @@
       const scrollMax = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const rawP = clamp(window.scrollY / scrollMax, 0, 1);
 
+      // Which transition segment (0–3) and progress within it
       const seg  = Math.min(3, Math.floor(rawP * 4));
       const segP = ease(clamp(rawP * 4 - seg, 0, 1));
       const st   = lerpLayer(LAYERS[seg], LAYERS[seg + 1], segP);
 
+      // Whole note: fades in during s4 (rawP 0.72 → 1.0)
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
+
+      // Wave phase = scroll position (no time counter → frozen when idle)
       const phase = window.scrollY * 0.016;
 
+      // Background subtly darkens
       const bg = Math.round(lerp(242, 229, rawP));
       ctx.fillStyle = `rgb(${bg},${bg - 2},${bg - 5})`;
       ctx.fillRect(0, 0, W, H);
@@ -248,19 +259,22 @@
           const x = c * GRID;
           const y = r * GRID;
 
+          // Radial waves from off-screen origin — concentric rings passing through viewport.
+          const ocx  = W * st.cx;
+          const ocy  = H * st.cy;
+          const ddx  = x - ocx;
+          const ddy  = y - ocy;
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
           let wave = 0;
           for (let n = 1; n <= nh; n++) {
-            const a   = st.bA + n * 1.13;
-            const fx  = st.freq * n * Math.cos(a);
-            const fy  = st.freq * n * Math.sin(a);
-            const spd = n % 2 === 0 ? 0.9 : -0.7;
-            wave += Math.sin(x * fx + y * fy + phase * n * spd) / n;
+            wave += Math.sin(dist * st.freq * n - phase * n) / n;
           }
           wave /= nh > 1 ? 1.5 : 1.0;
 
           const wR = clamp(st.base + wave * st.amp, 0.15, GRID * 0.46);
           const wA = clamp(0.06 + (wave + 1) * 0.37, 0.02, 0.88);
 
+          // Whole note shape: dots near ellipse outline grow, others shrink
           const nw = noteWeight(x, y);
           const nR = nw * GRID * 0.45;
           const nA = nw * 0.84;
@@ -286,6 +300,7 @@
     resize();
     window.addEventListener('resize', resize);
 
+    // Animation loop: only redraws on scroll change
     let lastScrollY = -1;
     (function loop() {
       if (window.scrollY !== lastScrollY) {
@@ -295,6 +310,7 @@
       requestAnimationFrame(loop);
     })();
 
+    // Text fade-in + progress dots
     const scenes  = document.querySelectorAll('.scene');
     const navDots = document.querySelectorAll('.progress-dot');
 
