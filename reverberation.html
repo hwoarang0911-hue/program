@@ -197,11 +197,11 @@
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
     // s0 has negative base so only wave peaks show → very sparse opening dots.
     const LAYERS = [
-      { nh:2, freq:0.006, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
-      { nh:8, freq:0.013, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
-      { nh:4, freq:0.007, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
-      { nh:2, freq:0.004, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
-      { nh:1, freq:0.003, amp:1.5, base:1.0,  cx: 0.48, cy:-0.85 }, // s4: fundamental
+      { nh:2, freq:0.006, amp:0.9, base:0.7,  cx:-0.28, cy:-0.38 }, // s0: light opening
+      { nh:8, freq:0.013, amp:0.8, base:0.7,  cx: 1.35, cy:-0.12 }, // s1: 8배음
+      { nh:4, freq:0.007, amp:2.0, base:1.1,  cx:-0.40, cy: 0.58 }, // s2: 4배음
+      { nh:2, freq:0.004, amp:3.0, base:1.6,  cx: 1.22, cy: 1.28 }, // s3: 2배음
+      { nh:1, freq:0.003, amp:0.7, base:0.5,  cx: 0.48, cy:-0.85 }, // s4: fundamental
     ];
 
     function lerpLayer(a, b, t) {
@@ -237,7 +237,7 @@
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
 
       // Wave phase: scroll-driven + slow time drift so it idles gently
-      const phase = window.scrollY * 0.016 + animTime * 0.18;
+      const phase = window.scrollY * 0.006 + animTime * 0.18;
 
       // Background: near-white, subtly darkens
       const bg = Math.round(lerp(252, 242, rawP));
