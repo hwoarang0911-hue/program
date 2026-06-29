@@ -195,9 +195,8 @@
 
     // 5 distinct visual layers — radial waves from off-screen centers.
     // cx/cy are viewport-fraction coords of the origin (values outside 0–1 = off-screen).
-    // s0 has negative base so only wave peaks show → very sparse opening dots.
     const LAYERS = [
-      { nh:2, freq:0.040, amp:1.0, base:-0.6, cx:-0.28, cy:-0.38 }, // s0: sparse opening
+      { nh:2, freq:0.040, amp:2.2, base:1.5,  cx:-0.28, cy:-0.38 }, // s0: light opening
       { nh:8, freq:0.082, amp:1.8, base:1.4,  cx: 1.35, cy:-0.12 }, // s1: 8배음
       { nh:4, freq:0.046, amp:4.8, base:2.5,  cx:-0.40, cy: 0.58 }, // s2: 4배음
       { nh:2, freq:0.026, amp:7.0, base:4.0,  cx: 1.22, cy: 1.28 }, // s3: 2배음
@@ -233,7 +232,7 @@
       const segP = ease(clamp(rawP * 4 - seg, 0, 1));
       const st   = lerpLayer(LAYERS[seg], LAYERS[seg + 1], segP);
 
-      // Droplet ripple: fades in during s4 (rawP 0.72 → 1.0)
+      // Interference finale: fades in during s4 (rawP 0.72 → 1.0)
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
 
       // Wave phase: scroll-driven + slow time drift so it idles gently
@@ -294,14 +293,15 @@
     resize();
     window.addEventListener('resize', resize);
 
-    // Animation loop: time advances every frame for idle drift; scroll drives wave phase
+    // Animation loop: started via rAF so ts is always a valid timestamp
     let prevTs = null;
-    (function loop(ts) {
+    function loop(ts) {
       if (prevTs !== null) animTime += (ts - prevTs) * 0.001;
       prevTs = ts;
       render();
       requestAnimationFrame(loop);
-    })();
+    }
+    requestAnimationFrame(loop);
 
     // Text fade-in + progress dots
     const scenes  = document.querySelectorAll('.scene');
