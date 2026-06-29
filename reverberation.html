@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>잔향의 층위 — YEONEUM</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f2f0eb;
+      color: #1a1a1a;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      overflow-x: hidden;
+    }
+
+    canvas#bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .scene {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .scene-inner {
+      text-align: center;
+      padding: 2rem;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 1.1s ease, transform 1.1s ease;
+    }
+
+    .scene-inner.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #s0 .scene-inner {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .harmonic-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.55em;
+      color: rgba(26,26,26,0.32);
+      text-transform: uppercase;
+      margin-bottom: 2.8rem;
+    }
+
+    .quote {
+      font-size: clamp(1rem, 2.4vw, 1.45rem);
+      line-height: 2.1;
+      font-weight: normal;
+      color: #1a1a1a;
+      max-width: 460px;
+    }
+
+    .main-title {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: normal;
+      letter-spacing: 0.04em;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+    }
+
+    .main-subtitle {
+      font-size: 0.6rem;
+      letter-spacing: 0.55em;
+      color: rgba(26,26,26,0.3);
+      text-transform: uppercase;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.8rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.45em;
+      color: rgba(26,26,26,0.28);
+      text-transform: uppercase;
+      animation: drift 2.8s ease-in-out infinite;
+    }
+
+    @keyframes drift {
+      0%, 100% { opacity: 0.28; transform: translateY(0); }
+      50%       { opacity: 0.6;  transform: translateY(5px); }
+    }
+
+    .back-link {
+      position: fixed;
+      top: 1.6rem;
+      left: 1.6rem;
+      z-index: 10;
+      font-size: 0.58rem;
+      letter-spacing: 0.38em;
+      color: rgba(26,26,26,0.3);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.25s;
+    }
+    .back-link:hover { color: #1a1a1a; }
+
+    .progress-track {
+      position: fixed;
+      right: 1.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .progress-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(26,26,26,0.18);
+      transition: background 0.4s, transform 0.4s;
+    }
+
+    .progress-dot.active {
+      background: rgba(26,26,26,0.7);
+      transform: scale(1.6);
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="back-link">← 돌아가기</a>
+
+  <nav class="progress-track" aria-hidden="true">
+    <div class="progress-dot active" data-index="0"></div>
+    <div class="progress-dot" data-index="1"></div>
+    <div class="progress-dot" data-index="2"></div>
+    <div class="progress-dot" data-index="3"></div>
+    <div class="progress-dot" data-index="4"></div>
+  </nav>
+
+  <canvas id="bg"></canvas>
+
+  <main>
+    <section class="scene" id="s0">
+      <div class="scene-inner">
+        <div class="main-title">잔향의 층위</div>
+        <div class="main-subtitle">Layers of Reverberation &nbsp;·&nbsp; YEONEUM 2026</div>
+      </div>
+      <div class="scroll-hint">scroll</div>
+    </section>
+
+    <section class="scene" id="s1">
+      <div class="scene-inner">
+        <div class="harmonic-label">8th Harmonic &nbsp;·&nbsp; 제8배음</div>
+        <div class="quote">소리는 사라지지 않는다<br>당신 안에 쌓일 뿐이다</div>
+      </div>
+    </section>
+
+    <section class="scene" id="s2">
+      <div class="scene-inner">
+        <div class="harmonic-label">4th Harmonic &nbsp;·&nbsp; 제4배음</div>
+        <div class="quote">파동이 파동을 만날 때<br>세계는 잠시 더 넓어진다</div>
+      </div>
+    </section>
+
+    <section class="scene" id="s3">
+      <div class="scene-inner">
+        <div class="harmonic-label">2nd Harmonic &nbsp;·&nbsp; 제2배음</div>
+        <div class="quote">잔향은 소리가 아니다<br>소리가 남긴 시간이다</div>
+      </div>
+    </section>
+
+    <section class="scene" id="s4">
+      <div class="scene-inner">
+        <div class="harmonic-label">Fundamental &nbsp;·&nbsp; 근음</div>
+        <div class="quote">마지막 음이 사라진 자리에<br>모든 음이 남는다</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ── Canvas ──
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ── Helpers ──
+    const lerp  = (a, b, t) => a + (b - a) * t;
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const ease  = x => x * x * (3 - 2 * x);
+
+    const GRID = 24;
+    let t = 0;
+
+    function getProgress() {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      return ease(clamp(window.scrollY / max, 0, 1));
+    }
+
+    function drawFrame() {
+      const p = getProgress();
+
+      // Wave parameters evolve: many high-freq harmonics → single low-freq fundamental
+      const harmonics   = Math.max(1, Math.round(lerp(8, 1, p)));
+      const baseFreq    = lerp(0.095, 0.014, p);
+      const dotBase     = lerp(1.8, 6.0, p);
+      const waveAmp     = lerp(2.8, 9.0, p);
+      const speed       = lerp(0.024, 0.005, p);
+      const radialBlend = p * p;
+
+      // Background very subtly darkens toward fundamental
+      const bg = Math.round(lerp(242, 234, p));
+      ctx.fillStyle = `rgb(${bg},${bg - 2},${bg - 5})`;
+      ctx.fillRect(0, 0, W, H);
+
+      const cols = Math.ceil(W / GRID) + 2;
+      const rows = Math.ceil(H / GRID) + 2;
+      const cx = W / 2, cy = H / 2;
+
+      for (let r = 0; r <= rows; r++) {
+        for (let c = 0; c <= cols; c++) {
+          const x = c * GRID;
+          const y = r * GRID;
+
+          // Planar multi-harmonic wave
+          let planar = 0;
+          for (let n = 1; n <= harmonics; n++) {
+            const dir = n % 2 === 0 ? 1 : -0.65;
+            planar += Math.sin(
+              x * baseFreq * n + y * baseFreq * n * 0.52 + t * speed * n * dir
+            ) / n;
+          }
+          planar /= harmonics > 1 ? 1.7 : 1;
+
+          // Radial wave (single fundamental, expands from center)
+          const dist   = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+          const radial = Math.sin(dist * baseFreq * 1.6 - t * speed * 2.5);
+
+          // Blend planar → radial as p→1
+          const wave   = lerp(planar, radial, radialBlend);
+          const radius = clamp(dotBase + wave * waveAmp, 0.2, GRID * 0.46);
+          const alpha  = clamp(0.07 + (wave + 1) * 0.38, 0.03, 0.88);
+
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(16,16,16,${alpha.toFixed(2)})`;
+          ctx.fill();
+        }
+      }
+
+      t++;
+      requestAnimationFrame(drawFrame);
+    }
+
+    drawFrame();
+
+    // ── Scene text fade + progress dots ──
+    const scenes  = document.querySelectorAll('.scene');
+    const navDots = document.querySelectorAll('.progress-dot');
+
+    const sceneObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const inner = e.target.querySelector('.scene-inner');
+        if (inner && e.target.id !== 's0') {
+          inner.classList.toggle('visible', e.isIntersecting);
+        }
+        if (e.isIntersecting) {
+          const idx = Array.from(scenes).indexOf(e.target);
+          navDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        }
+      });
+    }, { threshold: 0.5 });
+
+    scenes.forEach(s => sceneObserver.observe(s));
+  </script>
+</body>
+</html>
