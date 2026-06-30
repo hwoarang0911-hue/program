@@ -237,7 +237,7 @@
       const noteBlend = ease(clamp((rawP - 0.72) / 0.28, 0, 1));
 
       // Wave phase: scroll-driven + slow time drift so it idles gently
-      const phase = window.scrollY * 0.006 + animTime * 0.18;
+      const phase = window.scrollY * 0.006 + animTime * 0.9;
 
       // Background: near-white, subtly darkens
       const bg = Math.round(lerp(252, 242, rawP));
